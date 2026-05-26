@@ -1,3 +1,5 @@
+// server/app.js
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -28,20 +30,15 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// ── Serve React frontend in production ──────────────────────────
+// Serve React frontend in production
 if (process.env.NODE_ENV === 'production') {
-  // Serve built React files from client/dist
   app.use(express.static(path.join(__dirname, '../client/dist')));
 
-  // Any route that is not /api/* → serve React app
-  app.get('*', (req, res) => {
+  // FIX: use '/{*path}' instead of '*' for newer Express/path-to-regexp
+  app.get('/{*path}', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
   });
 }
-
-app.use((req, res) => {
-  res.status(404).json({ message: `Route ${req.method} ${req.path} not found` });
-});
 
 app.use(errorHandler);
 
